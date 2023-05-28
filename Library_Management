@@ -1,0 +1,157 @@
+import datetime
+import tkinter as tk
+from tkinter import messagebox
+
+class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+        self.issued = False
+        self.issued_date = None
+
+    def issue(self):
+        if self.issued:
+            return False
+        self.issued = True
+        self.issued_date = datetime.datetime.now()
+        return True
+
+    def return_book(self):
+        if not self.issued:
+            return False
+        self.issued = False
+        self.issued_date = None
+        return True
+
+class Library:
+    def __init__(self):
+        self.books = []
+        self.add_default_books()
+
+    def add_default_books(self):
+        self.add_book(Book("To Kill a Mockingbird", "Harper Lee"))
+        self.add_book(Book("Pride and Prejudice", "Jane Austen"))
+        self.add_book(Book("The Great Gatsby", "Scott"))
+        self.add_book(Book("1984", "George"))
+        self.add_book(Book("Python", "nani"))
+
+    def add_book(self, book):
+        self.books.append(book)
+
+    def remove_book(self, book):
+        if book in self.books:
+            self.books.remove(book)
+
+    def search_book(self, title):
+        for book in self.books:
+            if book.title.lower() == title.lower():
+                return book
+        return None
+
+    def issue_book(self, title):
+        book = self.search_book(title)
+        if book:
+            if book.issue():
+                messagebox.showinfo("Library Management", f"Book '{book.title}' issued successfully\nIssued Date: {book.issued_date}")
+            else:
+                messagebox.showinfo("Library Management", f"Book '{book.title}' is already issued")
+        else:
+            messagebox.showinfo("Library Management", f"Book '{title}' not found in the library")
+
+    def return_book(self, title):
+        book = self.search_book(title)
+        if book:
+            if book.return_book():
+                messagebox.showinfo("Library Management", f"Book '{book.title}' returned successfully")
+            else:
+                messagebox.showinfo("Library Management", f"Book '{book.title}' is not issued")
+        else:
+            messagebox.showinfo("Library Management", f"Book '{title}' not found in the library")
+
+    def display_books(self):
+        if not self.books:
+            messagebox.showinfo("Library Management", "The library is empty")
+        else:
+            book_list = []
+            for book in self.books:
+                status = "Issued" if book.issued else "Available"
+                issued_date = book.issued_date.strftime("%Y-%m-%d %H:%M:%S") if book.issued_date else "N/A"
+                book_info = f"Title: {book.title}\nAuthor: {book.author}\nStatus: {status}\nIssued Date: {issued_date}\n"
+                book_list.append(book_info)
+            messagebox.showinfo("Library Management", "\n".join(book_list))
+
+# Create a library instance
+library = Library()
+
+def add_book():
+    title = entry_title.get()
+    author = entry_author.get()
+    book = Book(title, author)
+    library.add_book(book)
+    messagebox.showinfo("Library Management", f"Book '{book.title}' by {book.author} added to the library")
+    entry_title.delete(0, tk.END)
+    entry_author.delete(0, tk.END)
+
+def remove_book():
+    title = entry_title.get()
+    book = library.search_book(title)
+    if book:
+        library.remove_book(book)
+        messagebox.showinfo("Library Management", f"Book '{book.title}' by {book.author} removed from the library")
+    else:
+        messagebox.showinfo("Library Management", f"Book '{title}' not found in the library")
+    entry_title.delete(0, tk.END)
+
+def search_book():
+    title = entry_title.get()
+    book = library.search_book(title)
+    if book:
+        status = "Issued" if book.issued else "Available"
+        issued_date = book.issued_date.strftime("%Y-%m-%d %H:%M:%S") if book.issued_date else "N/A"
+        messagebox.showinfo("Library Management", f"Book '{book.title}' by {book.author}\nStatus: {status}\nIssued Date: {issued_date}")
+    else:
+        messagebox.showinfo("Library Management", f"Book '{title}' not found in the library")
+    entry_title.delete(0, tk.END)
+
+def issue_book():
+    title = entry_title.get()
+    library.issue_book(title)
+    entry_title.delete(0, tk.END)
+
+def return_book():
+    title = entry_title.get()
+    library.return_book(title)
+    entry_title.delete(0, tk.END)
+
+# Create a tkinter window
+window = tk.Tk()
+window.title("Library Management")
+
+# Create labels and entry fields
+label_title = tk.Label(window, text="Title:")
+label_author = tk.Label(window, text="Author:")
+entry_title = tk.Entry(window)
+entry_author = tk.Entry(window)
+
+# Create buttons
+button_add = tk.Button(window, text="Add Book", command=add_book)
+button_remove = tk.Button(window, text="Remove Book", command=remove_book)
+button_search = tk.Button(window, text="Search Book", command=search_book)
+button_issue = tk.Button(window, text="Issue Book", command=issue_book)
+button_return = tk.Button(window, text="Return Book", command=return_book)
+button_display = tk.Button(window, text="Display Books", command=library.display_books)
+
+# Grid layout
+label_title.grid(row=0, column=0, padx=5, pady=5)
+label_author.grid(row=1, column=0, padx=5, pady=5)
+entry_title.grid(row=0, column=1, padx=5, pady=5)
+entry_author.grid(row=1, column=1, padx=5, pady=5)
+button_add.grid(row=2, column=0, padx=5, pady=5)
+button_remove.grid(row=2, column=1, padx=5, pady=5)
+button_search.grid(row=3, column=0, padx=5, pady=5)
+button_issue.grid(row=3, column=1, padx=5, pady=5)
+button_return.grid(row=4, column=0, padx=5, pady=5)
+button_display.grid(row=4, column=1, padx=5, pady=5)
+
+# Start the tkinter event loop
+window.mainloop()
